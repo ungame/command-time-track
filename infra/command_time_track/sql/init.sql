@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS activities (
+    id BIGINT AUTO_INCREMENT,
+    category VARCHAR(50) DEFAULT 'undefined',
+    description TEXT NOT NULL,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    stopped_at TIMESTAMP NULL,
+    CONSTRAINT activities_id_pk PRIMARY KEY(id)
+)
+ENGINE = INNODB
+DEFAULT CHARSET = UTF8;
