@@ -23,7 +23,7 @@ import (
 var port int
 
 func init() {
-	flag.IntVar(&port, "", 15555, "set port")
+	flag.IntVar(&port, "p", 15555, "set port")
 	flag.Parse()
 }
 
