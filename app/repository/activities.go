@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/ungame/command-time-track/app/ioext"
 	"github.com/ungame/command-time-track/app/models"
 )
@@ -13,6 +14,8 @@ type ActivitiesRepository interface {
 	Delete(ctx context.Context, id int64) (int64, error)
 	Get(ctx context.Context, id int64) (*models.Activity, error)
 	GetAll(ctx context.Context) ([]*models.Activity, error)
+	Search(ctx context.Context, term string) ([]*models.Activity, error)
+	GetByStatus(ctx context.Context, status models.Status) ([]*models.Activity, error)
 }
 
 type activitiesRepository struct {
@@ -56,8 +59,9 @@ func (r *activitiesRepository) Update(ctx context.Context, activity *models.Acti
 		ctx,
 		activity.Category,
 		activity.Description,
+		activity.Status,
 		activity.UpdatedAt,
-		activity.StoppedAt,
+		activity.FinishedAt,
 		activity.ID,
 	)
 	if err != nil {
@@ -84,9 +88,10 @@ func (r *activitiesRepository) Get(ctx context.Context, id int64) (*models.Activ
 		&activity.ID,
 		&activity.Category,
 		&activity.Description,
+		&activity.Status,
 		&activity.StartedAt,
 		&activity.UpdatedAt,
-		&activity.StoppedAt,
+		&activity.FinishedAt,
 	)
 	return activity, err
 }
@@ -105,9 +110,10 @@ func (r *activitiesRepository) GetAll(ctx context.Context) ([]*models.Activity, 
 			&activity.ID,
 			&activity.Category,
 			&activity.Description,
+			&activity.Status,
 			&activity.StartedAt,
 			&activity.UpdatedAt,
-			&activity.StoppedAt,
+			&activity.FinishedAt,
 		)
 		if err != nil {
 			return activities, err
@@ -115,4 +121,62 @@ func (r *activitiesRepository) GetAll(ctx context.Context) ([]*models.Activity, 
 		activities = append(activities, &activity)
 	}
 	return activities, nil
+}
+
+func (r *activitiesRepository) GetByStatus(ctx context.Context, status models.Status) ([]*models.Activity, error) {
+	query := `select * from activities where status = ?`
+	rows, err := r.conn.QueryContext(ctx, query, status)
+	if err != nil {
+		return nil, err
+	}
+	defer ioext.Close(rows)
+	activities := make([]*models.Activity, 0, 10)
+	for rows.Next() {
+		var activity models.Activity
+		err = rows.Scan(
+			&activity.ID,
+			&activity.Category,
+			&activity.Description,
+			&activity.Status,
+			&activity.StartedAt,
+			&activity.UpdatedAt,
+			&activity.FinishedAt,
+		)
+		if err != nil {
+			return activities, err
+		}
+		activities = append(activities, &activity)
+	}
+	return activities, nil
+}
+
+func (r *activitiesRepository) Search(ctx context.Context, term string) ([]*models.Activity, error) {
+	query := `select * from activities where category like ? or description like ?`
+	rows, err := r.conn.QueryContext(ctx, query, like(term), like(term))
+	if err != nil {
+		return nil, err
+	}
+	defer ioext.Close(rows)
+	activities := make([]*models.Activity, 0, 10)
+	for rows.Next() {
+		var activity models.Activity
+		err = rows.Scan(
+			&activity.ID,
+			&activity.Category,
+			&activity.Description,
+			&activity.Status,
+			&activity.StartedAt,
+			&activity.UpdatedAt,
+			&activity.FinishedAt,
+		)
+		if err != nil {
+			return activities, err
+		}
+		activities = append(activities, &activity)
+	}
+	return activities, nil
+}
+
+func like(s string) string {
+	return fmt.Sprintf(`%%%s%%`, s)
 }
