@@ -12,12 +12,12 @@ type statusCodeRecorder struct {
 }
 
 func (r *statusCodeRecorder) WriteHeader(status int) {
-	r.WriteHeader(status)
+	r.ResponseWriter.WriteHeader(status)
 	r.status = status
 }
 
-func Logger(next http.HandlerFunc) http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
+func Logger(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		var (
 			start    = time.Now()
 			proto    = request.Proto
@@ -26,8 +26,11 @@ func Logger(next http.HandlerFunc) http.HandlerFunc {
 			recorder = &statusCodeRecorder{writer, 0}
 		)
 
-		next(writer, request)
+		next.ServeHTTP(recorder, request)
 
-		log.Printf("%s %s %s %d %s", proto, method, uri, recorder.status, time.Since(start).String())
-	}
+		log.Printf("%s %s %s %d %s %s\n",
+			proto, method, uri, recorder.status,
+			http.StatusText(recorder.status),
+			time.Since(start).String())
+	})
 }

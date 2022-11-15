@@ -10,6 +10,7 @@ import (
 	"github.com/ungame/command-time-track/app/handlers"
 	"github.com/ungame/command-time-track/app/httpext"
 	"github.com/ungame/command-time-track/app/ioext"
+	"github.com/ungame/command-time-track/app/middlewares"
 	"github.com/ungame/command-time-track/app/observer"
 	"github.com/ungame/command-time-track/app/repository"
 	"github.com/ungame/command-time-track/app/service"
@@ -48,8 +49,8 @@ func Run() {
 	)
 
 	router := mux.NewRouter().StrictSlash(true)
+	router.Use(middlewares.Logger)
 	router.Path("/metrics").Handler(promhttp.Handler())
-
 	activitiesHandler.Register(router)
 
 	log.Printf("Listening http://localhost:%d\n\n", port)
