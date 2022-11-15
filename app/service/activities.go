@@ -55,14 +55,16 @@ func (s *activitiesService) StartActivity(ctx context.Context, input *types.Star
 	activity := &models.Activity{
 		Category:    input.Category,
 		Description: input.Description,
-		StartedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		StartedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
 	}
 
 	activity.ID, err = s.activitiesRepository.Create(ctx, activity)
 	if err != nil {
 		return nil, err
 	}
+
+	s.activitiesObserver.Count(activity.Category)
 
 	activity.Status = models.StatusStarted
 
@@ -82,12 +84,15 @@ func (s *activitiesService) StopActivity(ctx context.Context, input *types.Updat
 	if existing.Status != models.StatusFinished {
 
 		existing.Status = models.StatusFinished
-		existing.FinishedAt = pointer.New(time.Now())
+		existing.FinishedAt = pointer.New(time.Now().UTC())
+		existing.UpdatedAt = time.Now().UTC()
 
 		_, err := s.activitiesRepository.Update(ctx, existing)
 		if err != nil {
 			return nil, err
 		}
+
+		s.activitiesObserver.DurationOf(existing.Category, existing.StartedAt)
 
 		log.Printf("Activity stopped: ID=%v\n", existing.ID)
 	}
@@ -118,13 +123,14 @@ func (s *activitiesService) UpdateActivityCategory(ctx context.Context, input *t
 	if existing.Category != input.Category {
 
 		existing.Category = input.Category
+		existing.UpdatedAt = time.Now().UTC()
 
 		_, err := s.activitiesRepository.Update(ctx, existing)
 		if err != nil {
 			return nil, err
 		}
 
-		log.Printf("Activity categoty updated: ID=%v\n", existing.ID)
+		log.Printf("Activity category updated: ID=%v\n", existing.ID)
 	}
 
 	return existing.Out(), nil
@@ -139,6 +145,7 @@ func (s *activitiesService) UpdateActivityDescription(ctx context.Context, input
 
 	if existing.Description != input.Description {
 		existing.Description = input.Description
+		existing.UpdatedAt = time.Now().UTC()
 
 		_, err := s.activitiesRepository.Update(ctx, existing)
 		if err != nil {

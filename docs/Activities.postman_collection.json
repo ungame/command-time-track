@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "b5a4df8d-7cd9-4052-89d7-4647e20c8a4d",
+		"name": "Activities",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4049763"
+	},
+	"item": [
+		{
+			"name": "Start Activity",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"category\": \"bug\",\r\n    \"description\": \"jira-1115\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/activities",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Activities",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/activities",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Stop Activity",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/activities/10/stop",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"activities",
+						"10",
+						"stop"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Activity",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/activities/10",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"activities",
+						"10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Activity",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/activities/_/search?term=bug",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"activities",
+						"_",
+						"search"
+					],
+					"query": [
+						{
+							"key": "term",
+							"value": "bug"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

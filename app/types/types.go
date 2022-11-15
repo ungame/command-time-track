@@ -12,7 +12,7 @@ type ActivityOutput struct {
 	Status      string  `json:"status"`
 	StartedAt   string  `json:"started_at"`
 	UpdatedAt   string  `json:"updated_at"`
-	FinishedAt  *string `json:"stopped_at"`
+	FinishedAt  *string `json:"finished_at"`
 }
 
 type UpdateActivityInput struct {

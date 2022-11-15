@@ -26,7 +26,7 @@ func (h *activitiesHandler) Register(router *mux.Router) {
 	router.Path("/activities/{id}/category").HandlerFunc(h.PutActivityCategory).Methods(http.MethodPut)
 	router.Path("/activities/{id}/description").HandlerFunc(h.PutActivityDescription).Methods(http.MethodPut)
 	router.Path("/activities/{id}").HandlerFunc(h.GetActivity).Methods(http.MethodGet)
-	router.Path("/activities/search").HandlerFunc(h.SearchActivity).Methods(http.MethodGet)
+	router.Path("/activities/_/search").HandlerFunc(h.SearchActivity).Methods(http.MethodGet)
 	router.Path("/activities").HandlerFunc(h.GetActivities).Methods(http.MethodGet)
 	router.Path("/activities/{id}").HandlerFunc(h.DeleteActivity).Methods(http.MethodDelete)
 }
@@ -48,7 +48,7 @@ func (h *activitiesHandler) PostStartActivity(w http.ResponseWriter, r *http.Req
 		httpext.WriteError(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	w.Header().Set("Location", fmt.Sprintf("/%d", output.ID))
+	w.Header().Set("Location", fmt.Sprintf("%s/%d", r.RequestURI, output.ID))
 	httpext.WriteJson(w, http.StatusCreated, output)
 }
 
